@@ -1226,7 +1226,10 @@
                 var skBtn=introEl.querySelector("[data-intro-skip]");
                 if(skBtn)skBtn.addEventListener("click",function(ev){ev.preventDefault();ev.stopPropagation();hideIntro();});
                 setTimeout(hideIntro,dSec*1000);
-                setTimeout(hideIntro,(dSec*1000)+1200);
+                setTimeout(function(){
+                    try{if(introEl && introEl.parentNode){introEl.style.display="none";introEl.parentNode.removeChild(introEl);}}catch(e){}
+                    openLeadSheet();
+                },(dSec*1000)+900);
             }else if(leadEl){
                 setTimeout(openLeadSheet,500);
             }
