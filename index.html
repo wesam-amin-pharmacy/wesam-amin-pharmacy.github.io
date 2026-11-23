@@ -1200,36 +1200,60 @@
             }
             var introEl=document.getElementById("site-intro");
             var introDone=false;
-            function hideIntro(){
+            function forceRemoveIntro(){
                 try{
-                    if(introDone)return;
-                    introDone=true;
-                    if(introEl){
-                        introEl.classList.add("intro-hide");
-                        introEl.style.opacity="0";
-                        introEl.style.pointerEvents="none";
+                    var elNow=document.getElementById("site-intro") || introEl;
+                    if(elNow){
+                        elNow.style.setProperty("display","none","important");
+                        elNow.style.setProperty("opacity","0","important");
+                        elNow.style.setProperty("visibility","hidden","important");
+                        elNow.style.setProperty("pointer-events","none","important");
+                        if(elNow.parentNode)elNow.parentNode.removeChild(elNow);
+                    }
+                }catch(e){}
+            }
+            function hideIntro(){
+                if(introDone){
+                    forceRemoveIntro();
+                    return;
+                }
+                introDone=true;
+                try{
+                    var elNow=document.getElementById("site-intro") || introEl;
+                    if(elNow){
+                        elNow.classList.add("intro-hide");
+                        elNow.style.setProperty("opacity","0","important");
+                        elNow.style.setProperty("pointer-events","none","important");
                         setTimeout(function(){
-                            try{if(introEl && introEl.parentNode)introEl.parentNode.removeChild(introEl);}catch(e){}
+                            forceRemoveIntro();
                             openLeadSheet();
-                        },350);
+                        },250);
                     }else{
                         openLeadSheet();
                     }
                 }catch(err){
-                    try{if(introEl && introEl.parentNode)introEl.parentNode.removeChild(introEl);}catch(e){}
+                    forceRemoveIntro();
                     openLeadSheet();
                 }
             }
             if(introEl){
-                var dSec=parseFloat(introEl.getAttribute("data-intro-dur"))||3;
-                if(isNaN(dSec) || dSec<=0 || dSec>30)dSec=3;
+                var rawDur=introEl.getAttribute("data-intro-dur");
+                var dSec=parseFloat(rawDur);
+                if(isNaN(dSec) || dSec<0.5 || dSec>30)dSec=3;
                 var skBtn=introEl.querySelector("[data-intro-skip]");
-                if(skBtn)skBtn.addEventListener("click",function(ev){ev.preventDefault();ev.stopPropagation();hideIntro();});
+                if(skBtn){
+                    skBtn.addEventListener("click",function(ev){
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        hideIntro();
+                        setTimeout(function(){forceRemoveIntro();openLeadSheet();},280);
+                    });
+                }
                 setTimeout(hideIntro,dSec*1000);
                 setTimeout(function(){
-                    try{if(introEl && introEl.parentNode){introEl.style.display="none";introEl.parentNode.removeChild(introEl);}}catch(e){}
+                    forceRemoveIntro();
                     openLeadSheet();
-                },(dSec*1000)+900);
+                },(dSec*1000)+600);
             }else if(leadEl){
                 setTimeout(openLeadSheet,500);
             }
